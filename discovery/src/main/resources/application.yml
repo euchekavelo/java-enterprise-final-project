@@ -1,0 +1,19 @@
+server:
+  port: 8761
+
+
+spring:
+  application:
+    name: discovery
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: ./config/
+
+
+eureka:
+  dashboard:
+    path: /dashboard/
