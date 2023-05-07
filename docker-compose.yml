@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  psql-authentication:
+    image: postgres:latest
+    container_name: authentication-psql
+    ports:
+      - 5432:5432
+    restart: on-failure
+    environment:
+      POSTGRES_MULTIPLE_DATABASES:  authentication_db,order_service_db,inventory_service_db,delivery_service_db,payment_service_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./databases_init:/docker-entrypoint-initdb.d
