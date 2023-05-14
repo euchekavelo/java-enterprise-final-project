@@ -1,9 +1,9 @@
 version: '3'
 
 services:
-  psql-authentication:
+  psql-container:
     image: postgres:latest
-    container_name: authentication-psql
+    container_name: psql-container
     ports:
       - 5432:5432
     restart: on-failure
