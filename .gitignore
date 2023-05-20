@@ -1,7 +1,6 @@
 HELP.md
 target/
 .mvn/
-.idea/
 mvnw
 mvnw.cmd
 !**/src/main/**/target/

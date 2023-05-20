@@ -1,8 +1,0 @@
-spring:
-  cloud:
-    gateway:
-      routes:
-        - id: test
-          uri: "https://localhost/api"
-          predicates:
-            - Path=/**
