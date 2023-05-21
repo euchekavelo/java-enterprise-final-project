@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.skillbox.orderservice.domain.Order;
-import ru.skillbox.orderservice.domain.OrderDto;
-import ru.skillbox.orderservice.domain.OrderStatus;
-import ru.skillbox.orderservice.domain.StatusDto;
+import ru.skillbox.orderservice.model.Order;
+import ru.skillbox.orderservice.dto.OrderDto;
+import ru.skillbox.orderservice.model.enums.OrderStatus;
+import ru.skillbox.orderservice.dto.StatusDto;
 import ru.skillbox.orderservice.repository.OrderRepository;
 import ru.skillbox.orderservice.service.OrderService;
 

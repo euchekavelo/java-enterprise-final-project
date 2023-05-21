@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import ru.skillbox.orderservice.domain.OrderKafkaDto;
+import ru.skillbox.orderservice.dto.OrderKafkaDto;
 
 @Service
 public class KafkaServiceImpl implements KafkaService {
