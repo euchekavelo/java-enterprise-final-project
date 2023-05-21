@@ -1,4 +1,4 @@
-package ru.skillbox.orderservice.domain;
+package ru.skillbox.orderservice.model.enums;
 
 public enum OrderStatus {
     REGISTERED,

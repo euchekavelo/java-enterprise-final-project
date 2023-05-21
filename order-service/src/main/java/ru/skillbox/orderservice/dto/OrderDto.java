@@ -1,4 +1,4 @@
-package ru.skillbox.orderservice.domain;
+package ru.skillbox.orderservice.dto;
 
 import lombok.Data;
 import lombok.AllArgsConstructor;
