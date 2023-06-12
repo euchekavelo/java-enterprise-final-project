@@ -98,7 +98,7 @@ public class OrderControllerTest {
                 "Moscow, st.Dubininskaya 39",
                 2450L
         );
-        Mockito.when(orderService.addOrder(orderDto)).thenReturn(Optional.of(newOrder));
+        Mockito.when(orderService.addOrder(orderDto)).thenReturn(newOrder);
         mvc.perform(
                         post("/order")
                                 .accept(MediaType.APPLICATION_JSON)

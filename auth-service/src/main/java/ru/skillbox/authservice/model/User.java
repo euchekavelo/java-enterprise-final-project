@@ -1,4 +1,4 @@
-package ru.skillbox.authservice.domain;
+package ru.skillbox.authservice.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -26,14 +26,10 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    public User(
-            String name,
-            String password
-    ) {
+    public User(String name, String password) {
         this.name = name;
         this.password = password;
     }
-
 }
 
 

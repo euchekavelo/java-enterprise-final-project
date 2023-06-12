@@ -1,7 +1,7 @@
 package ru.skillbox.authservice.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.skillbox.authservice.domain.User;
+import ru.skillbox.authservice.model.User;
 
 import java.util.Optional;
 

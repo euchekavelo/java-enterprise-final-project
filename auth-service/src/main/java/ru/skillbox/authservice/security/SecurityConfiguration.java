@@ -70,8 +70,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     protected UsernamePasswordAuthenticationFilter getAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(this.authenticationManagerBean(), jwtUtil);
-        jwtAuthenticationFilter.setAuthenticationManager(this.authenticationManagerBean());
+        JwtAuthenticationFilter jwtAuthenticationFilter
+                = new JwtAuthenticationFilter(authenticationManagerBean(), jwtUtil);
+        jwtAuthenticationFilter.setAuthenticationManager(authenticationManagerBean());
         return jwtAuthenticationFilter;
     }
 

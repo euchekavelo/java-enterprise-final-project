@@ -11,6 +11,7 @@ import ru.skillbox.orderservice.model.enums.OrderStatus;
 import ru.skillbox.orderservice.model.enums.ServiceName;
 import ru.skillbox.orderservice.repository.OrderRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public Optional<Order> addOrder(OrderDto orderDto) {
+    public Order addOrder(OrderDto orderDto) {
+        LocalDateTime dateCreation = LocalDateTime.now();
         Order newOrder = new Order(
                 orderDto.getDepartureAddress(),
                 orderDto.getDestinationAddress(),
@@ -39,9 +41,11 @@ public class OrderServiceImpl implements OrderService {
                 OrderStatus.REGISTERED
         );
         newOrder.addStatusHistory(newOrder.getStatus(), ServiceName.ORDER_SERVICE, "Order created");
+        newOrder.setCreationTime(dateCreation);
+        newOrder.setModifiedTime(dateCreation);
         Order order = orderRepository.save(newOrder);
         kafkaService.produce(OrderKafkaDto.toKafkaDto(order));
-        return Optional.of(order);
+        return order;
     }
 
     @Transactional
