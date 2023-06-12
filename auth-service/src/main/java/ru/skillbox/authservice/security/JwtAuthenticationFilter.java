@@ -8,7 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import ru.skillbox.authservice.domain.User;
+import ru.skillbox.authservice.model.User;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
@@ -51,7 +51,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication authResult) {
-        String token = jwtUtil.generateToken(((User) authResult.getPrincipal()).getName());
+        String token = jwtUtil.generateToken(((User) authResult.getPrincipal()));
         response.addHeader(HttpHeaders.AUTHORIZATION, TOKEN_PREFIX + token);
     }
 }

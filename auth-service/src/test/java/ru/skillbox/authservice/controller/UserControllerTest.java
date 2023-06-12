@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.skillbox.authservice.domain.User;
+import ru.skillbox.authservice.model.User;
 import ru.skillbox.authservice.repository.UserRepository;
 import ru.skillbox.authservice.security.SecurityConfiguration;
 

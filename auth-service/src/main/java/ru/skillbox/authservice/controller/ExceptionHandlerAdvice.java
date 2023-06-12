@@ -6,6 +6,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.skillbox.authservice.dto.ErrorDto;
+import ru.skillbox.authservice.exception.UserIsNotFoundException;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -32,5 +33,11 @@ public class ExceptionHandlerAdvice {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorDto("Internal service error", LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(UserIsNotFoundException.class)
+    public ResponseEntity<ErrorDto> userIsNotFoundExceptionHandler(UserIsNotFoundException ex) {
+        ErrorDto errorDto = new ErrorDto(ex.getMessage(), LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDto);
     }
 }

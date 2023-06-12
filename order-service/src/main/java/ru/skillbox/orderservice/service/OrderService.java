@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface OrderService {
 
-    Optional<Order> addOrder(OrderDto orderDto);
+    Order addOrder(OrderDto orderDto);
 
     void updateOrderStatus(Long id, StatusDto statusDto) throws OrderNotFoundException;
 
