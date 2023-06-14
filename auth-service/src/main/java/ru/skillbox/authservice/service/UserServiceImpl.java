@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.skillbox.authservice.dto.UserDto;
-import ru.skillbox.authservice.exception.UserIsNotFoundException;
+import ru.skillbox.authservice.exception.UserNotFoundException;
 import ru.skillbox.authservice.model.User;
 import ru.skillbox.authservice.repository.UserRepository;
 
@@ -38,10 +38,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByName(String username) throws UserIsNotFoundException {
+    public User getUserByName(String username) throws UserNotFoundException {
         Optional<User> optionalUser = userRepository.findByName(username);
         if (optionalUser.isEmpty()) {
-            throw new UserIsNotFoundException("User is not found.");
+            throw new UserNotFoundException("User is not found.");
         }
 
         return optionalUser.get();

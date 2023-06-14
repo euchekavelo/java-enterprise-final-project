@@ -6,10 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.skillbox.orderservice.exception.OrderNotFoundException;
 import ru.skillbox.orderservice.dto.*;
+import ru.skillbox.orderservice.exception.ProductNotFoundException;
 import ru.skillbox.orderservice.model.Order;
+import ru.skillbox.orderservice.model.Product;
 import ru.skillbox.orderservice.model.enums.OrderStatus;
 import ru.skillbox.orderservice.model.enums.ServiceName;
 import ru.skillbox.orderservice.repository.OrderRepository;
+import ru.skillbox.orderservice.repository.ProductRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,30 +23,40 @@ import java.util.Optional;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-
+    private final ProductRepository productRepository;
     private final KafkaService kafkaService;
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, KafkaService kafkaService) {
+    public OrderServiceImpl(OrderRepository orderRepository, ProductRepository productRepository,
+                            KafkaService kafkaService) {
+
         this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
         this.kafkaService = kafkaService;
     }
 
     @Transactional
     @Override
-    public Order addOrder(OrderDto orderDto) {
+    public Order addOrder(OrderDto orderDto, Long userId) throws ProductNotFoundException {
+        Optional<Product> optionalProduct = productRepository.findById(orderDto.getProductId());
+        if (optionalProduct.isEmpty()) {
+            throw new ProductNotFoundException("Товара с указанным идентификатором не существует в базе данных!");
+        }
+
         LocalDateTime dateCreation = LocalDateTime.now();
-        Order newOrder = new Order(
-                orderDto.getDepartureAddress(),
-                orderDto.getDestinationAddress(),
-                orderDto.getDescription(),
-                orderDto.getCost(),
-                OrderStatus.REGISTERED
-        );
+        Order newOrder = new Order();
+        newOrder.setDepartureAddress(orderDto.getDepartureAddress());
+        newOrder.setDestinationAddress(orderDto.getDestinationAddress());
+        newOrder.setDescription(orderDto.getDescription());
+        newOrder.setCost(orderDto.getCost());
+        newOrder.setUserId(userId);
+        newOrder.setProductId(orderDto.getProductId());
+        newOrder.setStatus(OrderStatus.REGISTERED);
         newOrder.addStatusHistory(newOrder.getStatus(), ServiceName.ORDER_SERVICE, "Order created");
         newOrder.setCreationTime(dateCreation);
         newOrder.setModifiedTime(dateCreation);
         Order order = orderRepository.save(newOrder);
+
         kafkaService.produce(OrderKafkaDto.toKafkaDto(order));
         return order;
     }

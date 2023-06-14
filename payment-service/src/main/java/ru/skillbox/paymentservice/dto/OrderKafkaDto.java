@@ -7,7 +7,9 @@ import lombok.Data;
 @Data
 public class OrderKafkaDto {
 
-    private Long id;
+    private Long orderId;
+
+    private Long userId;
 
     private String status;
 
@@ -16,15 +18,5 @@ public class OrderKafkaDto {
     private String modifiedTime;
 
     public OrderKafkaDto() {
-    }
-
-    @Override
-    public String toString() {
-        return "OrderKafkaDto{" +
-                "id=" + id +
-                ", status='" + status + '\'' +
-                ", creationTime='" + creationTime + '\'' +
-                ", modifiedTime='" + modifiedTime + '\'' +
-                '}';
     }
 }

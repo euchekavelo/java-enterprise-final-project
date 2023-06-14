@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class OrderDto {
 
+    private Long productId;
+
     private String description;
 
     private String departureAddress;

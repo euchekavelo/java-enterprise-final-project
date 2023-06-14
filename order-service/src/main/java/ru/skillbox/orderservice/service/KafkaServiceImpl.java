@@ -10,7 +10,7 @@ import ru.skillbox.orderservice.dto.OrderKafkaDto;
 @Service
 public class KafkaServiceImpl implements KafkaService {
 
-    private static final Logger logger = LoggerFactory.getLogger(KafkaServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaServiceImpl.class);
 
     @Value("${spring.kafka.topic}")
     private String kafkaTopic;
@@ -24,6 +24,6 @@ public class KafkaServiceImpl implements KafkaService {
     @Override
     public void produce(OrderKafkaDto orderKafkaDto) {
         kafkaTemplate.send(kafkaTopic, orderKafkaDto);
-        logger.info("Sent message to Kafka -> '{}'", orderKafkaDto);
+        LOGGER.info("Sent message to Kafka -> '{}'", orderKafkaDto);
     }
 }
