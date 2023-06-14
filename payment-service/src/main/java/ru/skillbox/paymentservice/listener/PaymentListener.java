@@ -18,7 +18,6 @@ public class PaymentListener {
 
     @KafkaListener(topics = "order")
     public void orderServiceListener(OrderKafkaDto orderKafkaDto) {
-        System.out.println(orderKafkaDto.toString());
-        //paymentService.pay();
+        paymentService.pay(orderKafkaDto);
     }
 }

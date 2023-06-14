@@ -9,7 +9,9 @@ import ru.skillbox.orderservice.model.Order;
 @Data
 public class OrderKafkaDto {
 
-    private Long id;
+    private Long orderId;
+
+    private Long userId;
 
     private String status;
 
@@ -21,6 +23,7 @@ public class OrderKafkaDto {
 
         return new OrderKafkaDto(
                 order.getId(),
+                order.getUserId(),
                 order.getStatus().toString(),
                 order.getCreationTime().toString(),
                 order.getModifiedTime().toString()

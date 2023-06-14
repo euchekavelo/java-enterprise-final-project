@@ -4,11 +4,11 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "payment")
-public class Payment {
+public class UserBalance {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-
+    private Long userId;
+    private Double balance;
 }

@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.authservice.dto.UserDto;
-import ru.skillbox.authservice.exception.UserIsNotFoundException;
+import ru.skillbox.authservice.exception.UserNotFoundException;
 import ru.skillbox.authservice.model.User;
 import ru.skillbox.authservice.service.UserService;
 
@@ -27,7 +27,7 @@ public class UserController {
 
     @Operation(summary = "Get user by name", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping(value = "/{username}")
-    public ResponseEntity<?> getUser(@PathVariable String username) throws UserIsNotFoundException {
+    public ResponseEntity<?> getUser(@PathVariable String username) throws UserNotFoundException {
         return ResponseEntity.ok(userService.getUserByName(username));
     }
 
