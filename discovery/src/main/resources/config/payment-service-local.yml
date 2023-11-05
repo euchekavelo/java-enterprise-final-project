@@ -19,7 +19,10 @@ spring:
     show-sql: true
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    #topic: order
+    inventory-service-topic: inventory
+    error-order-service-topic: order-error
+
+order-service-url: http://localhost:9090/api
 
 management:
   endpoints:

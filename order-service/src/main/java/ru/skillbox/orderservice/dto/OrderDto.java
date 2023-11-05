@@ -8,12 +8,8 @@ import lombok.AllArgsConstructor;
 public class OrderDto {
 
     private Long productId;
+    private Integer count;
 
-    private String description;
-
-    private String departureAddress;
-
-    private String destinationAddress;
-
-    private Long cost;
+    public OrderDto() {
+    }
 }

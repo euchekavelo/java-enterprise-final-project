@@ -2,7 +2,7 @@ spring:
   application:
     name: order-service
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/auth_user_db}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/order_db}
     username: ${DATABASE_USER:postgre_user}
     password: ${DATABASE_PASSWORD:postgre_secret_password}
     driver-class-name: org.postgresql.Driver
@@ -19,7 +19,7 @@ spring:
     show-sql: true
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    topic: order
+    payment-service-topic: payment
 
 management:
   endpoints:
