@@ -11,6 +11,7 @@ import ru.skillbox.orderservice.model.enums.ServiceName;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @NoArgsConstructor
@@ -27,8 +28,6 @@ public class Order {
 
     private Long userId;
 
-    private Long productId;
-
     @Column(name = "description")
     private String description;
 
@@ -39,7 +38,7 @@ public class Order {
     private String destinationAddress;
 
     @Column(name = "cost")
-    private Long cost;
+    private Integer cost;
 
     @CreationTimestamp
     @Column(name = "creation_time")
@@ -60,7 +59,22 @@ public class Order {
     )
     private List<OrderStatusHistory> orderStatusHistory = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "order",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ProductDetail> productDetails = new ArrayList<>();
+
     public void addStatusHistory(OrderStatus status, ServiceName serviceName, String comment) {
         getOrderStatusHistory().add(new OrderStatusHistory(null, status, serviceName, comment, this));
+    }
+
+    public void addProductDetails(HashMap<Long, Integer> quantityProducts) {
+        List<ProductDetail> productDetailList = new ArrayList<>();
+        quantityProducts.forEach((key, value) ->
+                productDetailList.add(new ProductDetail(null, key, value, this)));
+
+        getProductDetails().addAll(productDetailList);
     }
 }

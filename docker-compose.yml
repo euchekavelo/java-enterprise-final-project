@@ -1,4 +1,4 @@
-version: '2.2'
+version: '3'
 services:
   psql:
     image: postgres:latest
@@ -35,14 +35,14 @@ services:
 
 
   # Convenient UI for Apache Kafka https://github.com/provectus/kafka-ui
-  kafka-ui:
-    image: provectuslabs/kafka-ui
-    container_name: kafka-ui
-    ports:
-      - "9999:8080"
-    restart: always
-    environment:
-      DYNAMIC_CONFIG_ENABLED: 'true'
+  #kafka-ui:
+  #  image: provectuslabs/kafka-ui
+  #  container_name: kafka-ui
+  #  ports:
+  #    - "9999:8080"
+  #  restart: always
+  #  environment:
+  #    DYNAMIC_CONFIG_ENABLED: 'true'
 #      - KAFKA_CLUSTERS_0_NAME=local
 #      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
 

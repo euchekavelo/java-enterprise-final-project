@@ -8,9 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.skillbox.orderservice.exception.ProductNotFoundException;
+import ru.skillbox.orderservice.dto.OrderServiceDto;
 import ru.skillbox.orderservice.model.Order;
-import ru.skillbox.orderservice.dto.OrderDto;
 import ru.skillbox.orderservice.dto.StatusDto;
 import ru.skillbox.orderservice.exception.OrderNotFoundException;
 import ru.skillbox.orderservice.service.OrderService;
@@ -45,11 +44,10 @@ public class OrderController {
 
     @Operation(summary = "Add order and start delivery process for it", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/order")
-    public ResponseEntity<Order> addOrder(@RequestBody OrderDto input, HttpServletRequest request)
-            throws ProductNotFoundException {
+    public ResponseEntity<Order> addOrder(@RequestBody OrderServiceDto input, HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.addOrder(input, Long.valueOf(request.getHeader("id"))));
+                .body(orderService.addOrder(input, request));
     }
 
     @Operation(summary = "Update order status", security = @SecurityRequirement(name = "bearerAuth"))

@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "orders")
+@Table(name = "order_histories")
 public class OrderStatusHistory {
 
     @Id
