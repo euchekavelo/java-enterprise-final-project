@@ -13,6 +13,7 @@ import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import ru.skillbox.orderservice.dto.ErrorOrderKafkaDto;
+import ru.skillbox.orderservice.dto.OrderKafkaDto;
 import ru.skillbox.orderservice.dto.PaymentKafkaDto;
 
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "order-service-error-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "order-service-group");
         return props;
     }
 
@@ -71,6 +72,23 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<Long, ErrorOrderKafkaDto> factory
                 = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<Long, OrderKafkaDto> consumerOrderKafkaDtoFactory() {
+        return new DefaultKafkaConsumerFactory<>(
+                consumerConfigs(),
+                new LongDeserializer(),
+                new JsonDeserializer<>(OrderKafkaDto.class, false)
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Long, OrderKafkaDto> kafkaListenerContainerOrderKafkaDtoFactory() {
+        ConcurrentKafkaListenerContainerFactory<Long, OrderKafkaDto> factory
+                = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerOrderKafkaDtoFactory());
         return factory;
     }
 }

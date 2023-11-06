@@ -45,71 +45,80 @@ public class InventoryServiceImpl implements InventoryService {
     @Transactional
     @Override
     public void completeOrderInventory(InventoryKafkaDto inventoryKafkaDto) {
-        Map<Long, Integer> orderDtoMap = inventoryKafkaDto.getOrderDtoList()
-                .stream()
-                .collect(Collectors.toMap(OrderDto::getProductId, OrderDto::getCount));
+        try {
+            Map<Long, Integer> orderDtoMap = inventoryKafkaDto.getOrderDtoList()
+                    .stream()
+                    .collect(Collectors.toMap(OrderDto::getProductId, OrderDto::getCount));
 
-        List<Inventory> inventoryList = inventoryRepository.findInventoryByIdIn(orderDtoMap.keySet());
-        Map<Long, Inventory> inventoryMap = inventoryList
-                .stream()
-                .collect(Collectors.toMap(Inventory::getId, Function.identity()));
+            List<Inventory> inventoryList = inventoryRepository.findInventoryByIdIn(orderDtoMap.keySet());
+            Map<Long, Inventory> inventoryMap = inventoryList
+                    .stream()
+                    .collect(Collectors.toMap(Inventory::getId, Function.identity()));
 
-        Invoice invoice = new Invoice();
-        invoice.setUserId(inventoryKafkaDto.getUserId());
-        Invoice savedInvoice = invoiceRepository.save(invoice);
+            Invoice invoice = new Invoice();
+            invoice.setUserId(inventoryKafkaDto.getUserId());
+            Invoice savedInvoice = invoiceRepository.save(invoice);
 
-        for (Map.Entry<Long, Integer> entry : orderDtoMap.entrySet()) {
-            Long productIdFromDto = entry.getKey();
-            if (!inventoryMap.containsKey(productIdFromDto)) {
-                String message = "Inventory with ID " + productIdFromDto + " was not found.";
-                sendErrorData(message, inventoryKafkaDto);
-                throw new InventoryNotFoundException(message);
+            for (Map.Entry<Long, Integer> entry : orderDtoMap.entrySet()) {
+                Long productIdFromDto = entry.getKey();
+                if (!inventoryMap.containsKey(productIdFromDto)) {
+                    String comment = "Inventory with ID " + productIdFromDto + " was not found.";
+                    sendData(comment, OrderStatus.INVENTMENT_FAILED, inventoryKafkaDto);
+                    throw new InventoryNotFoundException(comment);
+                }
+
+                Integer countProductFromDto = entry.getValue();
+                Inventory inventory = inventoryMap.get(productIdFromDto);
+                Integer countProductFromDatabase = inventory.getCount();
+                if (countProductFromDatabase < countProductFromDto) {
+                    String comment = "Insufficient inventory with ID " + productIdFromDto;
+                    sendData(comment, OrderStatus.INVENTMENT_FAILED, inventoryKafkaDto);
+                    throw new NotEnoughInventoryException(comment);
+                }
+
+                countProductFromDatabase = countProductFromDatabase - countProductFromDto;
+                inventory.setCount(countProductFromDatabase);
+                inventoryRepository.save(inventory);
+
+                recordChangesInTheInvoice(inventory, savedInvoice, countProductFromDto);
             }
 
-            Integer countProductFromDto = entry.getValue();
-            Inventory inventory = inventoryMap.get(productIdFromDto);
-            Integer countProductFromDatabase = inventory.getCount();
-            if (countProductFromDatabase < countProductFromDto) {
-                String message = "Insufficient inventory with ID " + productIdFromDto;
-                sendErrorData(message, inventoryKafkaDto);
-                throw new NotEnoughInventoryException(message);
+            String comment = "The order has been completed successfully.";
+            sendData(comment, OrderStatus.INVENTED, inventoryKafkaDto);
+            kafkaService.produce(createDeliveryKafkaDto(savedInvoice.getId(), inventoryKafkaDto));
+
+        } catch(Exception ex) {
+            if (!(ex instanceof InventoryNotFoundException) && !(ex instanceof NotEnoughInventoryException)) {
+                StatusDto statusDto = createStatusDto(OrderStatus.UNEXPECTED_FAILURE, ex.getMessage());
+                kafkaService.produce(createErrorPaymentKafkaDto(inventoryKafkaDto.getOrderId(), statusDto));
             }
-
-            countProductFromDatabase = countProductFromDatabase - countProductFromDto;
-            inventory.setCount(countProductFromDatabase);
-            inventoryRepository.save(inventory);
-
-            recordChangesInTheInvoice(inventory, savedInvoice, countProductFromDto);
         }
-
-        String message = "The order has been completed successfully.";
-        sendSuccessData(invoice.getId(), inventoryKafkaDto, message);
-    }
-
-    private void sendSuccessData(Long invoiceId, InventoryKafkaDto inventoryKafkaDto, String comment) {
-        StatusDto statusDto = new StatusDto(OrderStatus.INVENTED, ServiceName.INVENTORY_SERVICE, comment);
-        requestSendingService.updateOrderStatusInOrderService(inventoryKafkaDto.getOrderId(), statusDto,
-                inventoryKafkaDto.getAuthHeaderValue());
-
-        kafkaService.produce(createDeliveryKafkaDto(invoiceId, inventoryKafkaDto));
     }
 
     private DeliveryKafkaDto createDeliveryKafkaDto(Long invoiceId, InventoryKafkaDto inventoryKafkaDto) {
         DeliveryKafkaDto deliveryKafkaDto = new DeliveryKafkaDto();
         deliveryKafkaDto.setOrderId(inventoryKafkaDto.getOrderId());
         deliveryKafkaDto.setUserId(inventoryKafkaDto.getUserId());
+        deliveryKafkaDto.setDestinationAddress(inventoryKafkaDto.getDestinationAddress());
         deliveryKafkaDto.setAuthHeaderValue(inventoryKafkaDto.getAuthHeaderValue());
         deliveryKafkaDto.setInvoiceId(invoiceId);
 
         return deliveryKafkaDto;
     }
 
-    private void sendErrorData(String comment, InventoryKafkaDto inventoryKafkaDto) {
-        StatusDto statusDto = new StatusDto(OrderStatus.INVENTMENT_FAILED, ServiceName.INVENTORY_SERVICE, comment);
+    private void sendData(String comment, OrderStatus orderStatus, InventoryKafkaDto inventoryKafkaDto) {
+        StatusDto statusDto = createStatusDto(orderStatus, comment);
         requestSendingService.updateOrderStatusInOrderService(inventoryKafkaDto.getOrderId(), statusDto,
                 inventoryKafkaDto.getAuthHeaderValue());
+    }
 
-        kafkaService.produce(createErrorPaymentKafkaDto(inventoryKafkaDto.getTransactionId(), statusDto));
+    private StatusDto createStatusDto(OrderStatus orderStatus, String comment) {
+        StatusDto statusDto = new StatusDto();
+        statusDto.setStatus(orderStatus);
+        statusDto.setServiceName(ServiceName.INVENTORY_SERVICE);
+        statusDto.setComment(comment);
+
+        return statusDto;
     }
 
     private ErrorPaymentKafkaDto createErrorPaymentKafkaDto(Long transactionId, StatusDto statusDto) {

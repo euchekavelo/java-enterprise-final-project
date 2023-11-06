@@ -1,20 +1,24 @@
 package ru.skillbox.deliveryservice.consumer;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import ru.skillbox.deliveryservice.dto.DeliveryKafkaDto;
+import ru.skillbox.deliveryservice.service.DeliveryService;
 
 @Component
 public class DeliveryServiceConsumer {
 
-    //private final InventoryService inventoryService;
+    private final DeliveryService deliveryService;
 
-    public DeliveryServiceConsumer(/*InventoryService inventoryService*/) {
-        //this.inventoryService = inventoryService;
+    @Autowired
+    public DeliveryServiceConsumer(DeliveryService deliveryService) {
+        this.deliveryService = deliveryService;
     }
 
     @KafkaListener(topics = "delivery")
     public void consumeFromInventoryService(DeliveryKafkaDto deliveryKafkaDto) {
         System.out.println(deliveryKafkaDto);
+        deliveryService.makeDelivery(deliveryKafkaDto);
     }
 }

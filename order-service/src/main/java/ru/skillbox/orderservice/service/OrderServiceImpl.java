@@ -49,9 +49,23 @@ public class OrderServiceImpl implements OrderService {
         newOrder.addStatusHistory(newOrder.getStatus(), ServiceName.ORDER_SERVICE, "Order created");
         Order order = orderRepository.save(newOrder);
 
-        kafkaService.produce(new PaymentKafkaDto(userId, orderDtoList, orderServiceDto.getCost(),
-                                order.getId(), authHeaderValue));
+        kafkaService.produce(createPaymentKafkaDto(userId, orderDtoList, orderServiceDto.getCost(),
+                order.getId(), authHeaderValue));
+
         return order;
+    }
+
+    private PaymentKafkaDto createPaymentKafkaDto(Long userId, List<OrderDto> orderDtoList, Integer cost,
+                                                  Long orderId, String authHeaderValue) {
+
+        PaymentKafkaDto paymentKafkaDto = new PaymentKafkaDto();
+        paymentKafkaDto.setUserId(userId);
+        paymentKafkaDto.setOrderDtoList(orderDtoList);
+        paymentKafkaDto.setCost(cost);
+        paymentKafkaDto.setOrderId(orderId);
+        paymentKafkaDto.setAuthHeaderValue(authHeaderValue);
+
+        return paymentKafkaDto;
     }
 
     @Transactional
