@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.skillbox.paymentservice.dto.*;
 import ru.skillbox.paymentservice.dto.enums.OrderStatus;
 import ru.skillbox.paymentservice.dto.enums.ServiceName;
+import ru.skillbox.paymentservice.exception.BalanceNotFoundException;
+import ru.skillbox.paymentservice.exception.InsufficientFundsException;
 import ru.skillbox.paymentservice.exception.TransactionNotFoundException;
 import ru.skillbox.paymentservice.model.Balance;
 import ru.skillbox.paymentservice.model.Transaction;
@@ -36,34 +38,45 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     @Override
     public void pay(PaymentKafkaDto paymentKafkaDto) {
-        Integer cost = paymentKafkaDto.getCost();
-        Long userId = paymentKafkaDto.getUserId();
-        Optional<Balance> optionalUserBalance = balanceRepository.findBalanceByUserId(userId);
-        if (optionalUserBalance.isEmpty()) {
-            sendOrderProcessingErrorData("User account not found.",
-                    paymentKafkaDto);
-            return;
+        try {
+            Thread.sleep(3000);
+            Integer cost = paymentKafkaDto.getCost();
+            Long userId = paymentKafkaDto.getUserId();
+            Optional<Balance> optionalUserBalance = balanceRepository.findBalanceByUserId(userId);
+            if (optionalUserBalance.isEmpty()) {
+                String comment = "User account not found.";
+                sendData(comment, OrderStatus.PAYMENT_FAILED, paymentKafkaDto);
+                throw new BalanceNotFoundException(comment);
+            }
+
+            Balance userBalance = optionalUserBalance.get();
+            Integer balance = userBalance.getBalance();
+            if (balance < cost) {
+                String comment = "There are not enough funds to make the payment.";
+                sendData(comment, OrderStatus.PAYMENT_FAILED, paymentKafkaDto);
+                throw new InsufficientFundsException(comment);
+            }
+
+            Transaction transaction = new Transaction();
+            transaction.setSum(cost);
+            transaction.setBalance(userBalance);
+            transaction.setTransactionStatus(TransactionStatus.WRITE_OFF);
+            Transaction savedTransaction = transactionRepository.save(transaction);
+
+            balance = balance - cost;
+            userBalance.setBalance(balance);
+            balanceRepository.save(userBalance);
+
+            String comment = "The account balance has been successfully changed.";
+            sendData(comment, OrderStatus.PAID, paymentKafkaDto);
+            kafkaService.produce(createInventoryKafkaDto(savedTransaction.getId(), paymentKafkaDto));
+
+        } catch (Exception ex) {
+            if (!(ex instanceof BalanceNotFoundException) && !(ex instanceof InsufficientFundsException)) {
+                StatusDto statusDto = createStatusDto(OrderStatus.UNEXPECTED_FAILURE, ex.getMessage());
+                kafkaService.produce(createErrorOrderKafkaDto(paymentKafkaDto.getOrderId(), statusDto));
+            }
         }
-
-        Balance userBalance = optionalUserBalance.get();
-        Integer balance = userBalance.getBalance();
-        if (balance < cost) {
-            sendOrderProcessingErrorData("There are not enough funds " +
-                    "to make the payment.", paymentKafkaDto);
-            return;
-        }
-
-        Transaction transaction = new Transaction();
-        transaction.setSum(cost);
-        transaction.setBalance(userBalance);
-        transaction.setTransactionStatus(TransactionStatus.WRITE_OFF);
-        Transaction savedTransaction = transactionRepository.save(transaction);
-
-        balance = balance - cost;
-        userBalance.setBalance(balance);
-        balanceRepository.save(userBalance);
-
-        sendDataAboutSuccessfulOrderProcessing(paymentKafkaDto, savedTransaction.getId());
     }
 
     @Transactional
@@ -93,6 +106,7 @@ public class PaymentServiceImpl implements PaymentService {
         inventoryKafkaDto.setOrderDtoList(paymentKafkaDto.getOrderDtoList());
         inventoryKafkaDto.setOrderId(paymentKafkaDto.getOrderId());
         inventoryKafkaDto.setUserId(paymentKafkaDto.getUserId());
+        inventoryKafkaDto.setDestinationAddress(paymentKafkaDto.getDestinationAddress());
         inventoryKafkaDto.setAuthHeaderValue(paymentKafkaDto.getAuthHeaderValue());
         return inventoryKafkaDto;
     }
@@ -104,20 +118,18 @@ public class PaymentServiceImpl implements PaymentService {
         return errorOrderKafkaDto;
     }
 
-    private void sendDataAboutSuccessfulOrderProcessing(PaymentKafkaDto paymentKafkaDto, Long transactionId) {
-        StatusDto statusDto = new StatusDto(OrderStatus.PAID, ServiceName.PAYMENT_SERVICE,
-                "The account balance has been successfully changed.");
+    private void sendData(String comment, OrderStatus orderStatus, PaymentKafkaDto paymentKafkaDto) {
+        StatusDto statusDto = createStatusDto(orderStatus, comment);
         requestSendingService.updateOrderStatusInOrderService(paymentKafkaDto.getOrderId(), statusDto,
                 paymentKafkaDto.getAuthHeaderValue());
-
-        kafkaService.produce(createInventoryKafkaDto(transactionId, paymentKafkaDto));
     }
 
-    private void sendOrderProcessingErrorData(String comment, PaymentKafkaDto paymentKafkaDto) {
-        StatusDto statusDto = new StatusDto(OrderStatus.PAYMENT_FAILED, ServiceName.PAYMENT_SERVICE, comment);
-        requestSendingService.updateOrderStatusInOrderService(paymentKafkaDto.getOrderId(), statusDto,
-                paymentKafkaDto.getAuthHeaderValue());
+    private StatusDto createStatusDto(OrderStatus orderStatus, String comment) {
+        StatusDto statusDto = new StatusDto();
+        statusDto.setStatus(orderStatus);
+        statusDto.setServiceName(ServiceName.PAYMENT_SERVICE);
+        statusDto.setComment(comment);
 
-        kafkaService.produce(createErrorOrderKafkaDto(paymentKafkaDto.getOrderId(), statusDto));
+        return statusDto;
     }
 }

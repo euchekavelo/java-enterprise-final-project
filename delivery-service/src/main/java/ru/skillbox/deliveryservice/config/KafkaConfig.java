@@ -9,8 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.*;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
@@ -53,13 +52,13 @@ public class KafkaConfig {
         return factory;
     }
 
-    /*@Bean
+    @Bean
     public Map<String, Object> producerConfigs() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "inventory-service");
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "delivery-service");
         return props;
     }
 
@@ -73,5 +72,5 @@ public class KafkaConfig {
         KafkaTemplate<Long, Object> template = new KafkaTemplate<>(producerKafkaFactory());
         template.setMessageConverter(new StringJsonMessageConverter());
         return template;
-    }*/
+    }
 }
