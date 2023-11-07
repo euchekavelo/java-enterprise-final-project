@@ -50,8 +50,7 @@ public class InventoryServiceImpl implements InventoryService {
                     .stream()
                     .collect(Collectors.toMap(OrderDto::getProductId, OrderDto::getCount));
 
-            List<Inventory> inventoryList = inventoryRepository.findInventoryByIdIn(orderDtoMap.keySet());
-            Map<Long, Inventory> inventoryMap = inventoryList
+            Map<Long, Inventory> inventoryMap = inventoryRepository.findInventoryByIdIn(orderDtoMap.keySet())
                     .stream()
                     .collect(Collectors.toMap(Inventory::getId, Function.identity()));
 
@@ -87,11 +86,13 @@ public class InventoryServiceImpl implements InventoryService {
             sendData(comment, OrderStatus.INVENTED, inventoryKafkaDto);
             kafkaService.produce(createDeliveryKafkaDto(savedInvoice.getId(), inventoryKafkaDto));
 
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             if (!(ex instanceof InventoryNotFoundException) && !(ex instanceof NotEnoughInventoryException)) {
                 StatusDto statusDto = createStatusDto(OrderStatus.UNEXPECTED_FAILURE, ex.getMessage());
                 kafkaService.produce(createErrorPaymentKafkaDto(inventoryKafkaDto.getOrderId(), statusDto));
             }
+
+            throw new RuntimeException(ex.getMessage());
         }
     }
 

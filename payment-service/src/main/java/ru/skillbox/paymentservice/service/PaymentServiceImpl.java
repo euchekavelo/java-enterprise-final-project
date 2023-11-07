@@ -76,6 +76,8 @@ public class PaymentServiceImpl implements PaymentService {
                 StatusDto statusDto = createStatusDto(OrderStatus.UNEXPECTED_FAILURE, ex.getMessage());
                 kafkaService.produce(createErrorOrderKafkaDto(paymentKafkaDto.getOrderId(), statusDto));
             }
+
+            throw new RuntimeException(ex.getMessage());
         }
     }
 
