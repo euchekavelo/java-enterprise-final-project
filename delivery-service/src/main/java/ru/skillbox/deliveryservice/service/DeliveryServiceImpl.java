@@ -52,13 +52,15 @@ public class DeliveryServiceImpl implements DeliveryService {
             deliveryRepository.save(delivery);
             String comment = "The order delivery was unsuccessful.";
             sendData(comment, OrderStatus.DELIVERED, deliveryKafkaDto);
-            kafkaService.produce(createOrderKafkaDto(deliveryKafkaDto.getOrderId()));
+            //kafkaService.produce(createOrderKafkaDto(deliveryKafkaDto.getOrderId()));
 
         } catch (Exception ex) {
             if (!(ex instanceof FailedDeliveryException)) {
                 StatusDto statusDto = createStatusDto(OrderStatus.UNEXPECTED_FAILURE, ex.getMessage());
                 kafkaService.produce(createErrorInventoryDto(deliveryKafkaDto.getOrderId(), statusDto));
             }
+
+            throw new RuntimeException(ex.getMessage());
         }
     }
 
