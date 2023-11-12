@@ -2,10 +2,10 @@ package ru.skillbox.deliveryservice.dto.enums;
 
 public enum OrderStatus {
 
-    PAID,
+    /*PAID,
     PAYMENT_FAILED,
     INVENTED,
-    INVENTMENT_FAILED,
+    INVENTMENT_FAILED,*/
     DELIVERED,
     DELIVERY_FAILED,
     UNEXPECTED_FAILURE;

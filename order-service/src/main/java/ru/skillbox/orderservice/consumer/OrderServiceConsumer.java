@@ -3,7 +3,7 @@ package ru.skillbox.orderservice.consumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.skillbox.orderservice.dto.ErrorOrderKafkaDto;
+import ru.skillbox.orderservice.dto.ErrorKafkaDto;
 import ru.skillbox.orderservice.dto.OrderKafkaDto;
 import ru.skillbox.orderservice.exception.OrderNotFoundException;
 import ru.skillbox.orderservice.service.OrderService;
@@ -18,10 +18,9 @@ public class OrderServiceConsumer {
         this.orderService = orderService;
     }
 
-    @KafkaListener(topics = "order")
+    @KafkaListener(topics = "order", containerFactory = "kafkaListenerContainerOrderKafkaDtoFactory")
     private void consumeFromDeliveryService(OrderKafkaDto orderKafkaDto) {
         try {
-            System.out.println(orderKafkaDto);
             orderService.updateOrderStatus(orderKafkaDto.getOrderId(), orderKafkaDto.getStatusDto());
         } catch (OrderNotFoundException e) {
             throw new RuntimeException(e);
@@ -29,9 +28,9 @@ public class OrderServiceConsumer {
     }
 
     @KafkaListener(topics = "order-error")
-    public void consumeFromPaymentService(ErrorOrderKafkaDto errorOrderKafkaDto) {
+    public void consumeFromPaymentService(ErrorKafkaDto errorKafkaDto) {
         try {
-            orderService.updateOrderStatus(errorOrderKafkaDto.getOrderId(), errorOrderKafkaDto.getStatusDto());
+            orderService.updateOrderStatus(errorKafkaDto.getOrderId(), errorKafkaDto.getStatusDto());
         } catch (OrderNotFoundException e) {
             throw new RuntimeException(e);
         }

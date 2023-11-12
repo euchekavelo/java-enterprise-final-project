@@ -4,14 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.skillbox.deliveryservice.dto.DeliveryKafkaDto;
-import ru.skillbox.deliveryservice.dto.ErrorInventoryKafkaDto;
+import ru.skillbox.deliveryservice.dto.ErrorKafkaDto;
 import ru.skillbox.deliveryservice.dto.OrderKafkaDto;
 import ru.skillbox.deliveryservice.dto.StatusDto;
 import ru.skillbox.deliveryservice.dto.enums.OrderStatus;
 import ru.skillbox.deliveryservice.dto.enums.ServiceName;
 import ru.skillbox.deliveryservice.exception.FailedDeliveryException;
 import ru.skillbox.deliveryservice.model.Delivery;
-import ru.skillbox.deliveryservice.model.enums.DeliveryStatus;
 import ru.skillbox.deliveryservice.repository.DeliveryRepository;
 
 @Service
@@ -34,40 +33,39 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public void makeDelivery(DeliveryKafkaDto deliveryKafkaDto) {
         try {
-            Delivery delivery = new Delivery();
-            delivery.setInvoiceId(deliveryKafkaDto.getInvoiceId());
-            delivery.setDestinationAddress(deliveryKafkaDto.getDestinationAddress());
+            Long orderId = deliveryKafkaDto.getOrderId();
+            Long invoiceId = deliveryKafkaDto.getInvoiceId();
+            String authHeaderValue = deliveryKafkaDto.getAuthHeaderValue();
 
             double randomValue = Math.round(Math.random() * 100.0) / 100.0;
             System.out.println("random: " + randomValue);
-            if (randomValue > 0.85) {
-                delivery.setDeliveryStatus(DeliveryStatus.FAILURE);
-                deliveryRepository.save(delivery);
+            if (randomValue < 0.85) {
                 String comment = "The order delivery was unsuccessful.";
-                sendData(comment, OrderStatus.DELIVERY_FAILED, deliveryKafkaDto);
+                StatusDto statusDto = createStatusDto(OrderStatus.DELIVERY_FAILED, comment);
+                ErrorKafkaDto errorKafkaDto = createErrorKafkaDto(orderId, statusDto);
+                sendData(orderId, statusDto, authHeaderValue, errorKafkaDto);
+
                 throw new FailedDeliveryException(comment);
             }
 
-            delivery.setDeliveryStatus(DeliveryStatus.SUCCESS);
+            Delivery delivery = new Delivery();
+            delivery.setInvoiceId(invoiceId);
+            delivery.setDestinationAddress(deliveryKafkaDto.getDestinationAddress());
             deliveryRepository.save(delivery);
-            String comment = "The order delivery was unsuccessful.";
-            sendData(comment, OrderStatus.DELIVERED, deliveryKafkaDto);
-            //kafkaService.produce(createOrderKafkaDto(deliveryKafkaDto.getOrderId()));
+
+            String comment = "The order delivery was successful.";
+            StatusDto statusDto = createStatusDto(OrderStatus.DELIVERED, comment);
+            OrderKafkaDto orderKafkaDto = createOrderKafkaDto(orderId, statusDto);
+            sendData(orderId, statusDto, authHeaderValue, orderKafkaDto);
 
         } catch (Exception ex) {
             if (!(ex instanceof FailedDeliveryException)) {
                 StatusDto statusDto = createStatusDto(OrderStatus.UNEXPECTED_FAILURE, ex.getMessage());
-                kafkaService.produce(createErrorInventoryDto(deliveryKafkaDto.getOrderId(), statusDto));
+                kafkaService.produce(createErrorKafkaDto(deliveryKafkaDto.getOrderId(), statusDto));
             }
 
             throw new RuntimeException(ex.getMessage());
         }
-    }
-
-    private void sendData(String comment, OrderStatus orderStatus, DeliveryKafkaDto deliveryKafkaDto) {
-        StatusDto statusDto = createStatusDto(orderStatus, comment);
-        requestSendingService.updateOrderStatusInOrderService(deliveryKafkaDto.getOrderId(), statusDto,
-                deliveryKafkaDto.getAuthHeaderValue());
     }
 
     private StatusDto createStatusDto(OrderStatus orderStatus, String comment) {
@@ -79,18 +77,24 @@ public class DeliveryServiceImpl implements DeliveryService {
         return statusDto;
     }
 
-    private OrderKafkaDto createOrderKafkaDto(Long orderId) {
+    private OrderKafkaDto createOrderKafkaDto(Long orderId, StatusDto statusDto) {
         OrderKafkaDto orderKafkaDto = new OrderKafkaDto();
         orderKafkaDto.setOrderId(orderId);
+        orderKafkaDto.setStatusDto(statusDto);
 
         return orderKafkaDto;
     }
 
-    private ErrorInventoryKafkaDto createErrorInventoryDto(Long invoiceId, StatusDto statusDto) {
-        ErrorInventoryKafkaDto errorInventoryKafkaDto = new ErrorInventoryKafkaDto();
-        errorInventoryKafkaDto.setInvoiceId(invoiceId);
-        errorInventoryKafkaDto.setStatusDto(statusDto);
+    private ErrorKafkaDto createErrorKafkaDto(Long orderId, StatusDto statusDto) {
+        ErrorKafkaDto errorKafkaDto = new ErrorKafkaDto();
+        errorKafkaDto.setOrderId(orderId);
+        errorKafkaDto.setStatusDto(statusDto);
 
-        return errorInventoryKafkaDto;
+        return errorKafkaDto;
+    }
+
+    private void sendData(Long orderId, StatusDto statusDto, String authHeaderValue, Object kafkaDto) {
+        requestSendingService.updateOrderStatusInOrderService(orderId, statusDto, authHeaderValue);
+        kafkaService.produce(kafkaDto);
     }
 }

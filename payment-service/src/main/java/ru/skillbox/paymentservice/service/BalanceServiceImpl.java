@@ -3,6 +3,7 @@ package ru.skillbox.paymentservice.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.skillbox.paymentservice.dto.SumDto;
+import ru.skillbox.paymentservice.exception.BalanceExistsException;
 import ru.skillbox.paymentservice.exception.BalanceNotFoundException;
 import ru.skillbox.paymentservice.model.Balance;
 import ru.skillbox.paymentservice.repository.BalanceRepository;
@@ -20,7 +21,12 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
-    public Balance createBalance(Long userId) {
+    public Balance createBalance(Long userId) throws BalanceExistsException {
+        Optional<Balance> optionalBalance = balanceRepository.findBalanceByUserId(userId);
+        if (optionalBalance.isPresent()) {
+            throw new BalanceExistsException("A balance account for the specified user already exists.");
+        }
+
         Balance balance = new Balance();
         balance.setUserId(userId);
         balance.setBalance(0);

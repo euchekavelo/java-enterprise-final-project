@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import ru.skillbox.deliveryservice.dto.ErrorInventoryKafkaDto;
+import ru.skillbox.deliveryservice.dto.ErrorKafkaDto;
 
 @Service
 public class KafkaServiceImpl implements KafkaService {
@@ -28,7 +28,7 @@ public class KafkaServiceImpl implements KafkaService {
 
     @Override
     public void produce(Object kafkaDto) {
-        if (kafkaDto instanceof ErrorInventoryKafkaDto) {
+        if (kafkaDto instanceof ErrorKafkaDto) {
             kafkaTemplate.send(kafkaErrorInventoryServiceTopic, kafkaDto);
         } else {
             kafkaTemplate.send(kafkaOrderServiceTopic, kafkaDto);

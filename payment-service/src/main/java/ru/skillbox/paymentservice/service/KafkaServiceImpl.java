@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import ru.skillbox.paymentservice.dto.ErrorOrderKafkaDto;
+import ru.skillbox.paymentservice.dto.ErrorKafkaDto;
 
 @Service
 public class KafkaServiceImpl implements KafkaService {
@@ -26,7 +26,7 @@ public class KafkaServiceImpl implements KafkaService {
 
     @Override
     public void produce(Object kafkaDto) {
-        if (kafkaDto instanceof ErrorOrderKafkaDto) {
+        if (kafkaDto instanceof ErrorKafkaDto) {
             kafkaTemplate.send(kafkaErrorOrderServiceTopic, kafkaDto);
         } else {
             kafkaTemplate.send(kafkaInventoryServiceTopic, kafkaDto);

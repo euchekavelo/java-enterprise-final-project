@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import ru.skillbox.paymentservice.model.enums.TransactionStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,8 +14,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "transactions")
-public class Transaction {
+@Table(name = "payment_details")
+public class PaymentDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,14 +28,12 @@ public class Transaction {
     @JoinColumn(name = "balance_id")
     private Balance balance;
 
+    private Long orderId;
+
     @CreationTimestamp
     @Column(name = "creation_time")
     private LocalDateTime creationTime;
 
     @UpdateTimestamp
     private LocalDateTime modificationDate;
-
-    @Column(name = "status")
-    @Enumerated(EnumType.STRING)
-    private TransactionStatus transactionStatus;
 }

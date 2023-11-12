@@ -11,9 +11,6 @@ import ru.skillbox.orderservice.model.enums.ServiceName;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * Stores the history of order status changes
- */
 @NoArgsConstructor
 @Entity
 @Getter
