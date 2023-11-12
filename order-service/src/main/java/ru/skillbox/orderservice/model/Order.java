@@ -1,5 +1,6 @@
 package ru.skillbox.orderservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,12 +29,15 @@ public class Order {
 
     private Long userId;
 
+    @JsonIgnore
     @Column(name = "description")
     private String description;
 
+    @JsonIgnore
     @Column(name = "destination_address")
     private String destinationAddress;
 
+    @JsonIgnore
     @Column(name = "cost")
     private Integer cost;
 
@@ -49,6 +53,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    @JsonIgnore
     @OneToMany(
             mappedBy = "order",
             cascade = CascadeType.ALL,
@@ -56,6 +61,7 @@ public class Order {
     )
     private List<OrderStatusHistory> orderStatusHistory = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(
             mappedBy = "order",
             cascade = CascadeType.ALL,

@@ -8,8 +8,11 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@OpenAPIDefinition(info = @Info(title = "Payment Service API", version = "v1"),
-        servers = {@Server(url = "http://localhost:9090/api"), @Server(url = "http://localhost:8082/api")})
+@OpenAPIDefinition(info = @Info(title = "Payment service API", version = "v1"),
+        servers =   {
+                        @Server(url = "http://localhost:9090/payment-service"),
+                        @Server(url = "http://localhost:8081/payment-service")
+                    })
 @SecurityScheme(
         name = "bearerAuth",
         type = SecuritySchemeType.HTTP,

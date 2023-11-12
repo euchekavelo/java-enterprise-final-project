@@ -45,6 +45,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public void completeOrderInventory(InventoryKafkaDto inventoryKafkaDto) {
         try {
+            Thread.sleep(3000);
             Long orderId = inventoryKafkaDto.getOrderId();
             String authHeaderValue = inventoryKafkaDto.getAuthHeaderValue();
             Map<Long, Integer> orderDtoMap = inventoryKafkaDto.getOrderDtoList()
@@ -105,6 +106,18 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
+    public void replenishInventory(long inventoryId, CountDto countDto) throws InventoryNotFoundException {
+        Optional<Inventory> optionalInventory = inventoryRepository.findById(inventoryId);
+        if (optionalInventory.isEmpty()) {
+            throw new InventoryNotFoundException("Inventory with the specified ID " + inventoryId + " was not found.");
+        }
+
+        Inventory inventory = optionalInventory.get();
+        inventory.setCount(inventory.getCount() + countDto.getCount());
+        inventoryRepository.save(inventory);
+    }
+
+    @Override
     public Inventory createInventory(InventoryDto inventoryDto, Long userId) {
         Inventory inventory = new Inventory();
         inventory.setTitle(inventoryDto.getTitle());
@@ -161,7 +174,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     private void shipInventoryForOrder(Map<Long, Integer> orderDtoMap, Map<Long, Inventory> inventoryMap, Long orderId,
-                                       String authHeaderValue, Invoice invoice) {
+                                       String authHeaderValue, Invoice invoice) throws InventoryNotFoundException {
 
         for (Map.Entry<Long, Integer> entry : orderDtoMap.entrySet()) {
             Long productIdFromDto = entry.getKey();

@@ -1,5 +1,6 @@
 package ru.skillbox.paymentservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public class Balance {
     private Long userId;
     private Integer balance;
 
+    @JsonIgnore
     @OneToMany(
             mappedBy = "balance",
             cascade = CascadeType.ALL,

@@ -102,10 +102,8 @@ public class PaymentServiceImpl implements PaymentService {
             kafkaService.produce(errorKafkaDto);
 
         } catch (Exception ex) {
-            if (!(ex instanceof PaymentDetailsNotFoundException)) {
-                StatusDto statusDto = createStatusDto(OrderStatus.UNEXPECTED_FAILURE, ex.getMessage());
-                kafkaService.produce(createErrorKafkaDto(errorKafkaDto.getOrderId(), statusDto));
-            }
+            StatusDto statusDto = createStatusDto(OrderStatus.UNEXPECTED_FAILURE, ex.getMessage());
+            kafkaService.produce(createErrorKafkaDto(errorKafkaDto.getOrderId(), statusDto));
 
             throw new RuntimeException(ex.getMessage());
         }

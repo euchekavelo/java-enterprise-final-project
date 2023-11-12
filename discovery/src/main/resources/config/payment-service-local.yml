@@ -21,8 +21,10 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
     inventory-service-topic: inventory
     error-order-service-topic: order-error
+    payment-service-topic: payment
+    error-payment-service-topic: payment-error
 
-order-service-url: http://localhost:9090/api
+order-service-url: http://localhost:9090/order-service
 
 management:
   endpoints:

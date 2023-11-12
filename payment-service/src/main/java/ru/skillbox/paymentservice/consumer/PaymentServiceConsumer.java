@@ -1,5 +1,7 @@
 package ru.skillbox.paymentservice.consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -11,19 +13,23 @@ import ru.skillbox.paymentservice.service.PaymentService;
 public class PaymentServiceConsumer {
 
     private final PaymentService paymentService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaymentServiceConsumer.class);
 
     @Autowired
     public PaymentServiceConsumer(PaymentService paymentService) {
         this.paymentService = paymentService;
     }
 
-    @KafkaListener(topics = "payment")
+    @KafkaListener(topics = "${spring.kafka.payment-service-topic}")
     public void consumeFromOrderService(PaymentKafkaDto paymentKafkaDto) {
+        LOGGER.info("Consumed message from Kafka -> '{}'", paymentKafkaDto);
         paymentService.pay(paymentKafkaDto);
     }
 
-    @KafkaListener(topics = "payment-error", containerFactory = "kafkaListenerContainerErrorFactory")
+    @KafkaListener(topics = "${spring.kafka.error-payment-service-topic}",
+            containerFactory = "kafkaListenerContainerErrorFactory")
     public void consumeFromInventoryService(ErrorKafkaDto errorKafkaDto) {
+        LOGGER.info("Consumed message from Kafka -> '{}'", errorKafkaDto);
         paymentService.resetPayment(errorKafkaDto);
     }
 }
