@@ -1,16 +1,16 @@
 package ru.skillbox.inventoryservice.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "inventory")
-@Data
+@Setter
+@Getter
 public class Inventory {
 
     @Id
@@ -21,6 +21,6 @@ public class Inventory {
     private Integer costPerPiece;
     private Long userId;
 
-    @OneToMany(mappedBy = "inventory", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "inventory")
     private Set<InvoiceInventory> invoiceInventorySet = new HashSet<>();
 }

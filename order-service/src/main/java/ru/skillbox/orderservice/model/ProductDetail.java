@@ -1,7 +1,5 @@
 package ru.skillbox.orderservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,7 +19,6 @@ public class ProductDetail {
     private Long productId;
     private Integer count;
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;

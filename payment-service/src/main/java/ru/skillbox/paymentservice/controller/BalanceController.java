@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.skillbox.paymentservice.dto.SumDto;
+import ru.skillbox.paymentservice.exception.BalanceExistsException;
 import ru.skillbox.paymentservice.exception.BalanceNotFoundException;
 import ru.skillbox.paymentservice.model.Balance;
 import ru.skillbox.paymentservice.service.BalanceService;
@@ -29,7 +30,7 @@ public class BalanceController {
 
     @Operation(summary = "Create a user payment account", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/balance")
-    public ResponseEntity<Balance> createPaymentAccount(HttpServletRequest request) {
+    public ResponseEntity<Balance> createPaymentAccount(HttpServletRequest request) throws BalanceExistsException {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(balanceService.createBalance(Long.valueOf(request.getHeader("id"))));

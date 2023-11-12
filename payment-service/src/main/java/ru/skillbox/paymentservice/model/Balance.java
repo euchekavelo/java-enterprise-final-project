@@ -26,5 +26,5 @@ public class Balance {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<Transaction> transactionList = new ArrayList<>();
+    private List<PaymentDetails> paymentDetailsList = new ArrayList<>();
 }

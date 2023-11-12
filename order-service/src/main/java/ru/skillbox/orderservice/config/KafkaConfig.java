@@ -9,10 +9,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-import ru.skillbox.orderservice.dto.ErrorOrderKafkaDto;
+import org.springframework.util.backoff.BackOff;
+import org.springframework.util.backoff.FixedBackOff;
+import ru.skillbox.orderservice.dto.ErrorKafkaDto;
 import ru.skillbox.orderservice.dto.OrderKafkaDto;
 import ru.skillbox.orderservice.dto.PaymentKafkaDto;
 
@@ -59,19 +62,26 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<Long, ErrorOrderKafkaDto> consumerFactory() {
+    public DefaultErrorHandler errorHandler() {
+        BackOff fixedBackOff = new FixedBackOff(1L, 0L);
+        return new DefaultErrorHandler(fixedBackOff);
+    }
+
+    @Bean
+    public ConsumerFactory<Long, ErrorKafkaDto> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(
                 consumerConfigs(),
                 new LongDeserializer(),
-                new JsonDeserializer<>(ErrorOrderKafkaDto.class, false)
+                new JsonDeserializer<>(ErrorKafkaDto.class, false)
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<Long, ErrorOrderKafkaDto> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<Long, ErrorOrderKafkaDto> factory
+    public ConcurrentKafkaListenerContainerFactory<Long, ErrorKafkaDto> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<Long, ErrorKafkaDto> factory
                 = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setCommonErrorHandler(errorHandler());
         return factory;
     }
 
@@ -89,6 +99,7 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<Long, OrderKafkaDto> factory
                 = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerOrderKafkaDtoFactory());
+        factory.setCommonErrorHandler(errorHandler());
         return factory;
     }
 }

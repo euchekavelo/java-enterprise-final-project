@@ -1,6 +1,5 @@
 package ru.skillbox.deliveryservice.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.skillbox.deliveryservice.dto.enums.OrderStatus;
 import ru.skillbox.deliveryservice.dto.enums.ServiceName;

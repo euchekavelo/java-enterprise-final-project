@@ -32,13 +32,12 @@ public class OrderServiceImpl implements OrderService {
     public Order addOrder(OrderServiceDto orderServiceDto, HttpServletRequest request) {
         Long userId = Long.valueOf(request.getHeader("id"));
         String authHeaderValue = request.getHeader("Authorization");
+        List<OrderDto> initialOrderDtoList = orderServiceDto.getOrderDtoList();
+        Integer cost = orderServiceDto.getCost();
+        String destinationAddress = orderServiceDto.getDestinationAddress();
+
         HashMap<Long, Integer> quantityProducts = new HashMap<>();
-        List<OrderDto> orderDtoList = orderServiceDto.getOrderDtoList();
-        orderDtoList.forEach(orderDto -> {
-            quantityProducts.merge(orderDto.getProductId(), orderDto.getCount(), Integer::sum);
-        });
-        orderDtoList.clear();
-        quantityProducts.forEach((key, value) -> orderDtoList.add(new OrderDto(key, value)));
+        List<OrderDto> orderDtoList = getOrderDtoListWithoutDuplicates(initialOrderDtoList, quantityProducts);
 
         Order newOrder = new Order();
         newOrder.setDestinationAddress(orderServiceDto.getDestinationAddress());
@@ -47,16 +46,36 @@ public class OrderServiceImpl implements OrderService {
         newOrder.addProductDetails(quantityProducts);
         newOrder.setStatus(OrderStatus.REGISTERED);
         newOrder.addStatusHistory(newOrder.getStatus(), ServiceName.ORDER_SERVICE, "Order created");
-        Order order = orderRepository.save(newOrder);
+        Order savedOrder = orderRepository.save(newOrder);
 
-        kafkaService.produce(createPaymentKafkaDto(userId, orderDtoList, orderServiceDto.getCost(),
-                order.getId(), authHeaderValue));
+        PaymentKafkaDto paymentKafkaDto = createPaymentKafkaDto(userId, orderDtoList, cost,
+                savedOrder.getId(), authHeaderValue, destinationAddress);
+        kafkaService.produce(paymentKafkaDto);
 
-        return order;
+        return savedOrder;
+    }
+
+    private List<OrderDto> getOrderDtoListWithoutDuplicates(List<OrderDto> orderDtoList,
+                                                            HashMap<Long, Integer> quantityProducts) {
+
+        orderDtoList.forEach(orderDto ->
+                quantityProducts.merge(orderDto.getProductId(), orderDto.getCount(), Integer::sum));
+        orderDtoList.clear();
+        quantityProducts.forEach((key, value) -> orderDtoList.add(createOrderDto(key, value)));
+
+        return orderDtoList;
+    }
+
+    private OrderDto createOrderDto(Long productId, Integer count) {
+        OrderDto orderDto = new OrderDto();
+        orderDto.setProductId(productId);
+        orderDto.setCount(count);
+
+        return orderDto;
     }
 
     private PaymentKafkaDto createPaymentKafkaDto(Long userId, List<OrderDto> orderDtoList, Integer cost,
-                                                  Long orderId, String authHeaderValue) {
+                                                  Long orderId, String authHeaderValue, String destinationAddress) {
 
         PaymentKafkaDto paymentKafkaDto = new PaymentKafkaDto();
         paymentKafkaDto.setUserId(userId);
@@ -64,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
         paymentKafkaDto.setCost(cost);
         paymentKafkaDto.setOrderId(orderId);
         paymentKafkaDto.setAuthHeaderValue(authHeaderValue);
+        paymentKafkaDto.setDestinationAddress(destinationAddress);
 
         return paymentKafkaDto;
     }
@@ -95,10 +115,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order getOrder(Long orderId) throws OrderNotFoundException {
         Optional<Order> orderOptional = orderRepository.findById(orderId).stream().findFirst();
-        if (orderOptional.isPresent()) {
-            return orderOptional.get();
-        } else {
+        if (orderOptional.isEmpty()) {
             throw new OrderNotFoundException(orderId);
         }
+
+        return orderOptional.get();
     }
 }

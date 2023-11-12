@@ -12,9 +12,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.backoff.BackOff;
+import org.springframework.util.backoff.FixedBackOff;
+import ru.skillbox.paymentservice.dto.ErrorKafkaDto;
 import ru.skillbox.paymentservice.dto.PaymentKafkaDto;
 
 import java.util.HashMap;
@@ -34,8 +38,14 @@ public class KafkaConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "payment-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "payment-service-group");
         return props;
+    }
+
+    @Bean
+    public DefaultErrorHandler errorHandler() {
+        BackOff fixedBackOff = new FixedBackOff(1L, 0L);
+        return new DefaultErrorHandler(fixedBackOff);
     }
 
     @Bean
@@ -52,6 +62,25 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<Long, PaymentKafkaDto> factory
                 = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setCommonErrorHandler(errorHandler());
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<Long, ErrorKafkaDto> consumerErrorFactory() {
+        return new DefaultKafkaConsumerFactory<>(
+                consumerConfigs(),
+                new LongDeserializer(),
+                new JsonDeserializer<>(ErrorKafkaDto.class, false)
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<Long, ErrorKafkaDto> kafkaListenerContainerErrorFactory() {
+        ConcurrentKafkaListenerContainerFactory<Long, ErrorKafkaDto> factory
+                = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerErrorFactory());
+        factory.setCommonErrorHandler(errorHandler());
         return factory;
     }
 

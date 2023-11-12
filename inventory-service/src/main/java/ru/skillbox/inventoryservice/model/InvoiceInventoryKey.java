@@ -1,5 +1,6 @@
 package ru.skillbox.inventoryservice.model;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,8 +10,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-@Getter
-@Setter
+@Data
 public class InvoiceInventoryKey implements Serializable {
 
     @Column(name = "invoice_id")
@@ -19,16 +19,16 @@ public class InvoiceInventoryKey implements Serializable {
     @Column(name = "inventory_id")
     private Long inventoryId;
 
-    @Override
+    /*@Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InvoiceInventoryKey that = (InvoiceInventoryKey) o;
         return Objects.equals(invoiceId, that.invoiceId) && Objects.equals(inventoryId, that.inventoryId);
-    }
+    }*/
 
-    @Override
+    /*@Override
     public int hashCode() {
         return Objects.hash(invoiceId, inventoryId);
-    }
+    }*/
 }

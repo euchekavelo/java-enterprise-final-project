@@ -2,7 +2,6 @@ package ru.skillbox.deliveryservice.model;
 
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
-import ru.skillbox.deliveryservice.model.enums.DeliveryStatus;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,9 +18,6 @@ public class Delivery {
     private Long invoiceId;
 
     private String destinationAddress;
-
-    @Enumerated(EnumType.STRING)
-    private DeliveryStatus deliveryStatus;
 
     @CreationTimestamp
     private LocalDateTime creationDate;

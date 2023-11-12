@@ -6,7 +6,6 @@ import lombok.Data;
 public class DeliveryKafkaDto {
 
     private Long invoiceId;
-    private Long userId;
     private Long orderId;
     private String destinationAddress;
     private String authHeaderValue;

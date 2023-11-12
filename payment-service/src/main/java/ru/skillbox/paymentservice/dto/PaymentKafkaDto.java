@@ -1,6 +1,5 @@
 package ru.skillbox.paymentservice.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;

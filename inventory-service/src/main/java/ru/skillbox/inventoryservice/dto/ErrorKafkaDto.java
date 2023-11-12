@@ -3,8 +3,8 @@ package ru.skillbox.inventoryservice.dto;
 import lombok.Data;
 
 @Data
-public class ErrorPaymentKafkaDto {
+public class ErrorKafkaDto {
 
-    private Long transactionId;
+    private Long orderId;
     private StatusDto statusDto;
 }

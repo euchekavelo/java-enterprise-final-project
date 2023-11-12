@@ -15,6 +15,7 @@ import ru.skillbox.orderservice.exception.OrderNotFoundException;
 import ru.skillbox.orderservice.service.OrderService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -44,7 +45,7 @@ public class OrderController {
 
     @Operation(summary = "Add order and start delivery process for it", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/order")
-    public ResponseEntity<Order> addOrder(@RequestBody OrderServiceDto input, HttpServletRequest request) {
+    public ResponseEntity<Order> addOrder(@Valid @RequestBody OrderServiceDto input, HttpServletRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(orderService.addOrder(input, request));

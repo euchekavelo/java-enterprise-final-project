@@ -1,9 +1,9 @@
-package ru.skillbox.deliveryservice.dto;
+package ru.skillbox.orderservice.dto;
 
 import lombok.Data;
 
 @Data
-public class OrderKafkaDto {
+public class ErrorKafkaDto {
 
     private Long orderId;
     private StatusDto statusDto;

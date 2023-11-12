@@ -31,9 +31,6 @@ public class Order {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "departure_address")
-    private String departureAddress;
-
     @Column(name = "destination_address")
     private String destinationAddress;
 
