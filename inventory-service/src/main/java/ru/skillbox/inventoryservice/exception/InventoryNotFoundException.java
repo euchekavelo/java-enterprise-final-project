@@ -1,6 +1,6 @@
 package ru.skillbox.inventoryservice.exception;
 
-public class InventoryNotFoundException extends RuntimeException {
+public class InventoryNotFoundException extends Exception {
 
     public InventoryNotFoundException(String message) {
         super(message);

@@ -20,9 +20,3 @@ eureka:
     registerWithEureka: false
   server:
     waitTimeInMsWhenSyncEmpty: 0
-
-# could be used for debugging
-#logging:
-#  level:
-#    org:
-#      springframework: TRACE

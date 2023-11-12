@@ -29,29 +29,13 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @Operation(summary = "List all orders in delivery system", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/order")
-    public List<Order> getListOrders() {
-        return orderService.getOrderList();
-    }
-
-    @Operation(summary = "Get an order in system by id", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/order/{orderId}")
-    public Order getOrder(@PathVariable @Parameter(description = "Id of order") Long orderId)
-            throws OrderNotFoundException {
-
-        return orderService.getOrder(orderId);
-    }
-
-    @Operation(summary = "Add order and start delivery process for it", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Create a new order.", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/order")
     public ResponseEntity<Order> addOrder(@Valid @RequestBody OrderServiceDto input, HttpServletRequest request) {
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.addOrder(input, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.addOrder(input, request));
     }
 
-    @Operation(summary = "Update order status", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Update order status by id.", security = @SecurityRequirement(name = "bearerAuth"))
     @PatchMapping("/order/{orderId}")
     public ResponseEntity<Void> updateOrderStatus(@PathVariable @Parameter(description = "Id of order") long orderId,
                                                @RequestBody StatusDto statusDto) throws OrderNotFoundException {

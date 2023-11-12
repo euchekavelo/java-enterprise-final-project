@@ -33,13 +33,13 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public void makeDelivery(DeliveryKafkaDto deliveryKafkaDto) {
         try {
+            Thread.sleep(3000);
             Long orderId = deliveryKafkaDto.getOrderId();
             Long invoiceId = deliveryKafkaDto.getInvoiceId();
             String authHeaderValue = deliveryKafkaDto.getAuthHeaderValue();
 
             double randomValue = Math.round(Math.random() * 100.0) / 100.0;
-            System.out.println("random: " + randomValue);
-            if (randomValue < 0.85) {
+            if (randomValue > 0.85) {
                 String comment = "The order delivery was unsuccessful.";
                 StatusDto statusDto = createStatusDto(OrderStatus.DELIVERY_FAILED, comment);
                 ErrorKafkaDto errorKafkaDto = createErrorKafkaDto(orderId, statusDto);

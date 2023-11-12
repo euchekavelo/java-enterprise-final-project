@@ -28,7 +28,7 @@ public class BalanceController {
         this.balanceService = balanceService;
     }
 
-    @Operation(summary = "Create a user payment account", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Create a user payment account.", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/balance")
     public ResponseEntity<Balance> createPaymentAccount(HttpServletRequest request) throws BalanceExistsException {
 
@@ -36,7 +36,7 @@ public class BalanceController {
                 .body(balanceService.createBalance(Long.valueOf(request.getHeader("id"))));
     }
 
-    @Operation(summary = "Replenish user balance", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "Replenish user balance.", security = @SecurityRequirement(name = "bearerAuth"))
     @PatchMapping("/balance/{balanceId}")
     public ResponseEntity<Void> replenishBalance(@PathVariable @Parameter(description = "Id of balance") long balanceId,
                                                  @Valid @RequestBody SumDto sumDto) throws BalanceNotFoundException {

@@ -17,7 +17,7 @@ public class TokenController {
         this.authService = authService;
     }
 
-    @Operation(summary = "Generate token")
+    @Operation(summary = "Generate token.")
     @PostMapping(value = "/generate")
     public ResponseEntity<?> generateToken(@RequestBody UserDto loginUser) throws AuthenticationException {
         return ResponseEntity.ok(authService.generateTokenForAuthUser(loginUser));

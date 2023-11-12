@@ -21,22 +21,22 @@ public class GatewayConfig {
     public RouteLocator routes(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(
-                        "order_route", r -> r.path("/api/**")
+                        "order_route", r -> r.path("/order-service/**")
                                 .filters(f -> f.filter(filter))
                                 .uri("lb://ORDER-SERVICE")
                 )
                 .route(
-                        "auth_route", r -> r.path("/auth/**")
+                        "auth_route", r -> r.path("/auth-service/**")
                                 .filters(f -> f.filter(filter))
                                 .uri("lb://AUTH-SERVICE")
                 )
                 .route(
-                        "payment_route", r -> r.path("/payment/**")
+                        "payment_route", r -> r.path("/payment-service/**")
                                 .filters(f -> f.filter(filter))
                                 .uri("lb://PAYMENT-SERVICE")
                 )
                 .route(
-                        "inventory_route", r -> r.path("/inventory/**")
+                        "inventory_route", r -> r.path("/inventory-service/**")
                                 .filters(f -> f.filter(filter))
                                 .uri("lb://INVENTORY-SERVICE")
                 )

@@ -9,10 +9,13 @@ import java.util.regex.Pattern;
 public class RouterValidator {
 
     public static final List<Pattern> openEndpoints = List.of(
-            Pattern.compile("/auth/user/signup"),
-            Pattern.compile("/auth/token/generate"),
-            Pattern.compile("/auth/v3/api-docs.*"),
-            Pattern.compile("/api/v3/api-docs.*")
+            Pattern.compile("/auth-service/user/signup"),
+            Pattern.compile("/auth-service/token/generate"),
+            Pattern.compile("/auth-service/v3/api-docs.*"),
+            Pattern.compile("/order-service/v3/api-docs.*"),
+            Pattern.compile("/payment-service/v3/api-docs.*"),
+            Pattern.compile("/inventory-service/v3/api-docs.*"),
+            Pattern.compile("/delivery-service/v3/api-docs.*")
     );
 
     public static final Predicate<ServerHttpRequest> isSecured =

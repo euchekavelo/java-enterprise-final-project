@@ -25,26 +25,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Get user by name", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping(value = "/{username}")
-    public ResponseEntity<?> getUser(@PathVariable String username) throws UserNotFoundException {
-        return ResponseEntity.ok(userService.getUserByName(username));
-    }
-
-    @Operation(summary = "Get all users", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping(value = "/")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    @Operation(summary = "Delete user by name", security = @SecurityRequirement(name = "bearerAuth"))
-    @DeleteMapping(value = "/delete/{username}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
-        userService.deleteUserByName(username);
-        return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "Create new user")
+    @Operation(summary = "Create new user.")
     @PostMapping(value = "/signup")
     public ResponseEntity<User> createUser(@Valid @RequestBody UserDto userDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userDto));
