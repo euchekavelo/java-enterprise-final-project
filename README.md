@@ -107,9 +107,3 @@ curl -X 'PATCH' \
 }'
 ```
 
-## Running all services with docker-compose
-
-To run all services with docker-compose use this command
-```bash
- docker-compose -f docker-compose.yml -f docker-compose.services.yml up -d
-```
