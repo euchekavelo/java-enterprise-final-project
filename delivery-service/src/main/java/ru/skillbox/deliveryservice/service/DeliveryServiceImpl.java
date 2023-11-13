@@ -9,9 +9,12 @@ import ru.skillbox.deliveryservice.dto.OrderKafkaDto;
 import ru.skillbox.deliveryservice.dto.StatusDto;
 import ru.skillbox.deliveryservice.dto.enums.OrderStatus;
 import ru.skillbox.deliveryservice.dto.enums.ServiceName;
+import ru.skillbox.deliveryservice.exception.DeliveryNotFoundException;
 import ru.skillbox.deliveryservice.exception.FailedDeliveryException;
 import ru.skillbox.deliveryservice.model.Delivery;
 import ru.skillbox.deliveryservice.repository.DeliveryRepository;
+
+import java.util.Optional;
 
 @Service
 public class DeliveryServiceImpl implements DeliveryService {
@@ -66,6 +69,16 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             throw new RuntimeException(ex.getMessage());
         }
+    }
+
+    @Override
+    public void deleteDeliveryById(Long deliveryId) throws DeliveryNotFoundException {
+        Optional<Delivery> optionalDelivery = deliveryRepository.findById(deliveryId);
+        if (optionalDelivery.isEmpty()) {
+            throw new DeliveryNotFoundException("Delivery with ID " + deliveryId + " not found.");
+        }
+
+        deliveryRepository.delete(optionalDelivery.get());
     }
 
     private StatusDto createStatusDto(OrderStatus orderStatus, String comment) {

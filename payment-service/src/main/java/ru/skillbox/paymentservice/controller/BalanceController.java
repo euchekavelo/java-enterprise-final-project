@@ -3,7 +3,6 @@ package ru.skillbox.paymentservice.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import ru.skillbox.paymentservice.service.BalanceService;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-@Slf4j
 @RestController
 public class BalanceController {
 

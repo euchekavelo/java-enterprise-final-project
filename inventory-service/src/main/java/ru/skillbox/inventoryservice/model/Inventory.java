@@ -1,5 +1,6 @@
 package ru.skillbox.inventoryservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,10 +18,17 @@ public class Inventory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+
+    @JsonIgnore
     private Integer count;
+
+    @JsonIgnore
     private Integer costPerPiece;
+
+    @JsonIgnore
     private Long userId;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "inventory")
     private Set<InvoiceInventory> invoiceInventorySet = new HashSet<>();
 }

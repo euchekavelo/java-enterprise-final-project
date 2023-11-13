@@ -45,6 +45,7 @@ public class Order {
     @Column(name = "creation_time")
     private LocalDateTime creationTime;
 
+    @JsonIgnore
     @UpdateTimestamp
     @Column(name = "modified_time")
     private LocalDateTime modifiedTime;
