@@ -13,8 +13,4 @@ public interface OrderService {
     Order addOrder(OrderServiceDto orderDto, HttpServletRequest request);
 
     void updateOrderStatus(Long id, StatusDto statusDto) throws OrderNotFoundException;
-
-    List<Order> getOrderList();
-
-    Order getOrder(Long orderId) throws OrderNotFoundException;
 }

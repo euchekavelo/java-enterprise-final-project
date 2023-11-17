@@ -27,6 +27,7 @@ public class Order {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @JsonIgnore
     private Long userId;
 
     @JsonIgnore

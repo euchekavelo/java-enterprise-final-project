@@ -106,19 +106,4 @@ public class OrderServiceImpl implements OrderService {
         order.addStatusHistory(statusDto.getStatus(), statusDto.getServiceName(), statusDto.getComment());
         orderRepository.save(order);
     }
-
-    @Override
-    public List<Order> getOrderList() {
-        return orderRepository.findAll();
-    }
-
-    @Override
-    public Order getOrder(Long orderId) throws OrderNotFoundException {
-        Optional<Order> orderOptional = orderRepository.findById(orderId).stream().findFirst();
-        if (orderOptional.isEmpty()) {
-            throw new OrderNotFoundException(orderId);
-        }
-
-        return orderOptional.get();
-    }
 }
