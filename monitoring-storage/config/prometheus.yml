@@ -1,0 +1,36 @@
+scrape_configs:
+  - job_name: 'auth-service_monitoring'
+    scrape_interval: 15s
+    metrics_path: '/auth-service/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:9090']
+
+  - job_name: 'order-service_monitoring'
+    scrape_interval: 15s
+    metrics_path: '/order-service/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:9090']
+
+  - job_name: 'payment-service_monitoring'
+    scrape_interval: 15s
+    metrics_path: '/payment-service/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:9090']
+
+  - job_name: 'inventory-service_monitoring'
+    scrape_interval: 15s
+    metrics_path: '/inventory-service/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:9090']
+
+  - job_name: 'delivery-service_monitoring'
+    scrape_interval: 15s
+    metrics_path: '/delivery-service/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:9090']
+
+  - job_name: 'gateway_monitoring'
+    scrape_interval: 15s
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:9090']

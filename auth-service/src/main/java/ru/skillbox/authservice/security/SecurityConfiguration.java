@@ -32,6 +32,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/user/signup").permitAll()
                 .antMatchers(HttpMethod.POST, "/token/generate").permitAll()
+                .antMatchers(HttpMethod.GET, "/actuator/prometheus").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(getAuthenticationFilter())
