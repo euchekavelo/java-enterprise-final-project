@@ -28,6 +28,16 @@ eureka:
       defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
     enabled: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
 server:
   port: 8083
 

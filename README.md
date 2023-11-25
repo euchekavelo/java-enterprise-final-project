@@ -150,3 +150,9 @@ To remove delivery you can send DELETE request:
 curl --location --request DELETE 'http://localhost:9090/delivery-service/delivery/1' \
 --header 'Authorization: Bearer <put token here>'
 ```
+
+## Monitoring
+
+You can also view various application metrics using standard metrics by url: 
+
+http://localhost:9998/ 
