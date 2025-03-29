@@ -1,4 +1,4 @@
-# java_enterprise-final project
+# Corporate logistics service automation system
 
 The project contains the following subprojects: 
 
